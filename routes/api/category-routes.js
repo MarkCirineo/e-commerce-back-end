@@ -60,14 +60,20 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+const sequelize = require('../../config/connection');
 router.delete('/:id', async (req, res) => {
   // delete a category by its `id` value
   try {
+    await Category.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null);
     const categoryData = await Category.destroy({
       where: {
         id: req.params.id,
       },
+      truncate: {
+        cascade: true,
+      },
     });
+    await Category.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null)
     if (!categoryData) {
       res.status(404).json({ message: "No category found with that id" });
       return;
